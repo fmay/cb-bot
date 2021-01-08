@@ -39,12 +39,12 @@ async function sendMessage(req) {
 async function registerBot(req) {
   cbUrl = req.protocol + "://" + req.hostname + "/"
   data = {
-    CODE: "CBBot-Max",
+    CODE: "CBBot-Beria",
     TYPE: "O",
     EVENT_MESSAGE_ADD: cbUrl,
     EVENT_WELCOME_MESSAGE: cbUrl,
     EVENT_BOT_DELETE: cbUrl,
-    'PROPERTIES[NAME]': "Stalin",
+    'PROPERTIES[NAME]': "Beria",
     'PROPERTIES[COLOR]': "AQUA",
     'PROPERTIES[EMAIL]': "test@test.com",
     'auth': req.body.auth.access_token
