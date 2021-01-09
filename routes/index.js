@@ -23,71 +23,84 @@ router.post('/', function(req, res, next) {
       }
       break;
     case 'ONIMBOTJOINCHAT':
-        sendMessage(req)
+      sendJoined(req)
       break;
     default:
       console.log(req.body)
   }
-  console.log('---')
 });
-
 
 async function sendKeyboard(req) {
   const data = {
-    //COMMAND_ID: '1',
-    MESSAGE_ID: req.body.data.PARAMS.MESSAGE_ID,
-    MESSAGE: 'Do you want to chat to us in person about CooklyBookly or do you want information on how to use CooklyBookly?',
+    COMMAND_ID: 'MainMenu',
+    //MESSAGE_ID: req.body.data.PARAMS.MESSAGE_ID,
+    'DIALOG_ID': req.body.data['PARAMS']['DIALOG_ID'],
+    'MESSAGE': 'Do you want to chat to us in person about CooklyBookly or do you want information on how to use CooklyBookly?',
     'KEYBOARD[0][TEXT]': 'I want to chat with someone',
     'KEYBOARD[0][BG_COLOR]': '#62b2b3',
     'KEYBOARD[0][TEXT_COLOR]': '#ffffff',
     'KEYBOARD[0][DISPLAY]': 'LINE',
     'KEYBOARD[0][COMMAND]': 'main',
     'KEYBOARD[0][COMMAND_PARAMS]': 'chat',
-    'KEYBOARD[1][TEXT]': 'I want to chat with someone',
+    'KEYBOARD[1][TEXT]': 'I have a product usage question',
     'KEYBOARD[1][BG_COLOR]': '#62b2b3',
     'KEYBOARD[1][TEXT_COLOR]': '#ffffff',
     'KEYBOARD[1][DISPLAY]': 'LINE',
     'KEYBOARD[1][COMMAND]': 'main',
     'KEYBOARD[1][COMMAND_PARAMS]': 'support'
   }
-  await callBitrix('imbot.command.answer', data, req.body.auth)
+  await callBitrix('imbot.message.add', data, req.body.auth)
 }
 
-async function sendMessage(req) {
+async function sendJoined(req) {
   const data = {
+    //'BOT_ID': req.body.data.BOT[0].BOT_ID,
     'DIALOG_ID': req.body.data['PARAMS']['DIALOG_ID'],
-    'MESSAGE': `Hello I am Stalin,
-    How does Stalin drink water?
-    Gulag gulag gulag.`,
+    'MESSAGE': `You joined`,
   }
   await callBitrix('imbot.message.add', data, req.body.auth)
 }
 
+async function sendMessage(req) {
+  const data = {
+    //'BOT_ID': req.body.data.BOT[0].BOT_ID,
+    //'USER_TO_ID': req.body.data.PARAMS.TO_USER_ID,
+    //'DIALOG_ID': 'chat'+ req.body.data.PARAMS.CHAT_ID,
+    //'DIALOG_ID': req.body.data.USER.ID,
+    'USER_FROM_ID': req.body.data['PARAMS']['FROM_USER_ID'],
+    'DIALOG_ID': req.body.data['PARAMS']['DIALOG_ID'],
+    'MESSAGE': `A simple message`
+  }
+  await callBitrix('imbot.message.add', data, req.body.auth)
+}
+
+
 async function registerBot(req) {
   // Register Bot
   cbUrl = req.protocol + "://" + req.hostname + "/"
+  version = "CB Chatbot V2",
   data = {
-    CODE: "CBBotX",
-    TYPE: "0",
-    EVENT_MESSAGE_ADD: cbUrl,
-    EVENT_WELCOME_MESSAGE: cbUrl,
-    EVENT_BOT_DELETE: cbUrl,
-    'PROPERTIES[NAME]': "Cookly Bot",
+    CODE: version,
+    TYPE: "O",
+    OPENLINE: 'Y',
+    EVENT_HANDLER: cbUrl,
+    'PROPERTIES[NAME]': version,
     'PROPERTIES[COLOR]': "AQUA",
     'PROPERTIES[EMAIL]': "test@test.com",
   }
+  console.log("REGISTERING : " + data.CODE)
   await callBitrix('imbot.register', data, req.body.auth)
 
   // Register Command
-  data = {
+  /*data = {
     BOT_ID: 'CBBotX',
-    COMMAND: "help",
+    COMMAND: "MainMenu",
     COMMON: 'N',
     HIDDEN: 'N',
     EXTRANET_SUPPORT: 'Y',
     EVENT_COMMAND_ADD: cbUrl + "mainMenu"
   }
-  await callBitrix('imbot.command.register', data, req.body.auth)
+  await callBitrix('imbot.command.register', data, req.body.auth)*/
 }
 
 async function callBitrix(bitrixMethod, post_data, auth) {
@@ -97,15 +110,17 @@ async function callBitrix(bitrixMethod, post_data, auth) {
   const callPost = bent(`${auth.client_endpoint}`, 'POST', 'string', 200)
   try {
     const response = await callPost(`${bitrixMethod}`, querystring.encode(post_data))
-    console.log('RESPONSE : ')
     console.log(response)
+    console.log("-------------------")
 
   } catch(e) {
-    console.log("Error : " + e)
+    console.log(await e.json())
+    console.log("-------------------")
   }
 
 }
 
 
+// https://thin-crab-47.loca.lt/
 
 module.exports = router;
