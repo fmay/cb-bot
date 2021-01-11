@@ -3,7 +3,7 @@ var router = express.Router();
 const bent = require('bent')
 const querystring = require('querystring')
 
-var _botId = ""
+var _botId, _commandId = ''
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -34,17 +34,45 @@ router.post('/', function(req, res, next) {
 
 async function sendKeyboard(req) {
   const data = {
-    //COMMAND_ID: 'MainMenu',
-    //MESSAGE_ID: req.body.data.PARAMS.MESSAGE_ID,
-    'DIALOG_ID': req.body.data['PARAMS']['DIALOG_ID'],
-    'SYSTEM': 'N',
+    'COMMAND_ID': 9,
+    //'DIALOG_ID': req.body.data['PARAMS']['DIALOG_ID'],
+    'MESSAGE_ID': req.body.data.PARAMS.MESSAGE_ID,
+    'CLIENT_ID': req.body.data.PARAMS.FROM_USER_ID,
+    //'DIALOG_ID': req.body.data['PARAMS']['FROM_USER_ID'],
+    //'SYSTEM': 'N',
+    //'KEYBOARD[0][HIDDEN]': 'N',
     'MESSAGE': 'Keyboard message',
     'KEYBOARD[0][TEXT]': 'CHAT',
     'KEYBOARD[0][TEXT_COLOR]': '#ffffff',
     'KEYBOARD[0][BG_COLOR]': '#62b2b3',
     'KEYBOARD[0][DISPLAY]': 'LINE',
-    'KEYBOARD[0][HIDDEN]': 'N',
     'KEYBOARD[0][LINK]': "https://google.com",
+  }
+  await callBitrix('imbot.command.answer', data, req.body.auth)
+}
+
+
+async function sendKeyboard(req) {
+  const data = {
+    COMMAND_ID: 9,
+    //MESSAGE_ID: req.body.data.PARAMS.MESSAGE_ID,
+    'DIALOG_ID': req.body.data['PARAMS']['DIALOG_ID'],
+    //'DIALOG_ID': req.body.data['PARAMS']['FROM_USER_ID'],
+    //'BOT_ID': 119,
+    //'SYSTEM': 'N',
+    //'KEYBOARD[0][HIDDEN]': 'N',
+    'MESSAGE': 'Keyboard message',
+    'KEYBOARD[0][TEXT]': 'CHAT',
+    'KEYBOARD[0][TEXT_COLOR]': '#ffffff',
+    'KEYBOARD[0][BG_COLOR]': '#62b2b3',
+    'KEYBOARD[0][DISPLAY]': 'LINE',
+    'KEYBOARD[0][LINK]': "https://google.com",
+    /*'MENU[0][TEXT]': 'Item 1',
+    'MENU[0][LINK]': 'https://google.com',
+    'MENU[1][TEXT]': 'Item 2',
+    'MENU[1][LINK]': 'https://google.com'*/
+    'ATTACH[0][MESSAGE]': 'test',
+    'ATTACH[1][MESSAGE]': '[send=send message]Click for send[/send]'
     //'KEYBOARD[0][COMMAND]': 'MainMenu'
     /*'KEYBOARD[0][COMMAND]': 'main',
     'KEYBOARD[0][COMMAND_PARAMS]': 'chat',
@@ -128,6 +156,11 @@ async function callBitrix(bitrixMethod, post_data, auth) {
     const response = await callPost(`${bitrixMethod}`, querystring.encode(post_data))
     if(bitrixMethod === "imbot.register") {
       _botId = JSON.parse(response).result;
+      console.log("BOT_ID : " + _botId)
+    }
+    if(bitrixMethod === "imbot.command.register") {
+      _commandId = JSON.parse(response).result;
+      console.log("COMMAND_ID : " + _commandId)
     }
     console.log(response)
     console.log("-------------------")
